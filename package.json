@@ -1,6 +1,5 @@
 {
     "devDependencies": {
-        "typescript": "^4.4.4",
         "vitest": "^0.31.4"
     },
     "scripts": {
