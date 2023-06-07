@@ -1,14 +1,26 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@jsep-plugin/arrow':
+    specifier: ^1.0.5
+    version: 1.0.5(jsep@1.3.8)
+  '@jsep-plugin/object':
+    specifier: ^1.2.1
+    version: 1.2.1(jsep@1.3.8)
+  '@jsep-plugin/template':
+    specifier: ^1.0.2
+    version: 1.0.2(jsep@1.3.8)
+  immutable:
+    specifier: ^4.3.0
+    version: 4.3.0
+  jsep:
+    specifier: ^1.3.8
+    version: 1.3.8
   postgres:
     specifier: ^3.3.5
     version: 3.3.5
 
 devDependencies:
-  typescript:
-    specifier: ^4.4.4
-    version: 4.9.5
   vitest:
     specifier: ^0.31.4
     version: 0.31.4
@@ -217,6 +229,33 @@ packages:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
     dev: true
 
+  /@jsep-plugin/arrow@1.0.5(jsep@1.3.8):
+    resolution: {integrity: sha512-4Q9/6nETEf79DQdyynPk9G5CvYGw/TyRAw6IpkiIBm1z6eyDyjhcLjYxmBCqlKIUvjS8h8hfU8MzSjQRSntK5Q==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+    dependencies:
+      jsep: 1.3.8
+    dev: false
+
+  /@jsep-plugin/object@1.2.1(jsep@1.3.8):
+    resolution: {integrity: sha512-6YoZP80h2QFCuxyqj+OvoqEnTu2r5cSRpgpvGauWlvnevFP/F/dibpvXDpnHeqwT2FIzzvg47YOe3QD/UT8vJw==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+    dependencies:
+      jsep: 1.3.8
+    dev: false
+
+  /@jsep-plugin/template@1.0.2(jsep@1.3.8):
+    resolution: {integrity: sha512-fGIPHL4W/YZ3YShDByfWlLEIMCLRUTZDUDii4Xat4sJ+DTYeS21RWrZkvbprICyiwmO/fRY7xdHZh7K/ng6xLg==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+    dependencies:
+      jsep: 1.3.8
+    dev: false
+
   /@types/chai-subset@1.3.3:
     resolution: {integrity: sha512-frBecisrNGz+F4T6bcc+NLeolfiojh5FxW2klu669+8BARtyQv2C/GkNW6FUodVe4BroGMP/wER/YDGc7rEllw==}
     dependencies:
@@ -412,10 +451,19 @@ packages:
     resolution: {integrity: sha512-Hm0ixYtaSZ/V7C8FJrtZIuBBI+iSgL+1Aq82zSu8VQNB4S3Gk8e7Qs3VwBDJAhmRZcFqkl3tQu36g/Foh5I5ig==}
     dev: true
 
+  /immutable@4.3.0:
+    resolution: {integrity: sha512-0AOCmOip+xgJwEVTQj1EfiDDOkPmuyllDuTuEX+DDXUgapLAsBIfkg3sxCYyCEA8mQqZrrxPUGjcOQ2JS3WLkg==}
+    dev: false
+
   /js-string-escape@1.0.1:
     resolution: {integrity: sha512-Smw4xcfIQ5LVjAOuJCvN/zIodzA/BBSsluuoSykP+lUvScIi4U6RJLfwHet5cxFnCswUjISV8oAXaqaJDY3chg==}
     engines: {node: '>= 0.8'}
     dev: true
+
+  /jsep@1.3.8:
+    resolution: {integrity: sha512-qofGylTGgYj9gZFsHuyWAN4jr35eJ66qJCK4eKDnldohuUoQFbU3iZn2zjvEbd9wOAhP9Wx5DsAAduTyE1PSWQ==}
+    engines: {node: '>= 10.16.0'}
+    dev: false
 
   /jsonc-parser@3.2.0:
     resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
@@ -590,12 +638,6 @@ packages:
   /type-detect@4.0.8:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}
     engines: {node: '>=4'}
-    dev: true
-
-  /typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
     dev: true
 
   /ufo@1.1.2:
