@@ -8,7 +8,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ZixuanChen.vitest-explorer"
+				"ZixuanChen.vitest-explorer",
+				"ckolkman.vscode-postgres"
 			]
 		}
 	}
