@@ -3,6 +3,7 @@
         "vitest": "^0.31.4"
     },
     "scripts": {
-        "test": "vitest run"
+        "test": "vitest run",
+        "watch": "vitest"
     }
 }
