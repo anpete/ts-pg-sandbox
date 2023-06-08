@@ -1,9 +1,10 @@
-import { Map } from "immutable";
+import {Map} from "immutable";
 
 export class Model {
     constructor(
         readonly entities: Map<new (...args: any[]) => any, EntityModel> = Map()
-    ) {}
+    ) {
+    }
 
     withEntity(key: new (...args: any[]) => any, model: EntityModel) {
         const entities = this.entities.set(key, model);
@@ -114,7 +115,8 @@ class EntityBuilder<T> {
 }
 
 export class PropertyModel {
-    constructor(readonly name: string, readonly column: string = name) {}
+    constructor(readonly name: string, readonly column: string = name) {
+    }
 
     withColumn(column: string): PropertyModel {
         if (column === this.column) return this;

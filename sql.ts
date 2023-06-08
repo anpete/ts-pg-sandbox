@@ -1,4 +1,4 @@
-import { List } from "immutable";
+import {List} from "immutable";
 
 export abstract class SqlNode {
     accept<T>(_: SqlVisitor<T>): T {
@@ -111,12 +111,19 @@ export class SqlStar extends SqlNode {
 
 interface SqlVisitor<T> {
     visitSelect(select: SqlSelect): T;
+
     visitBinary(binary: SqlBinary): T;
+
     visitAlias(alias: SqlAlias): T;
+
     visitMember(member: SqlMember): T;
+
     visitStar(star: SqlStar): T;
+
     visitIdentifier(identifier: SqlIdentifier): T;
+
     visitLiteral(literal: SqlString): T;
+
     visitParameter(parameter: SqlParameter): T;
 }
 
