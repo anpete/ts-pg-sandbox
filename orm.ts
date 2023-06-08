@@ -28,7 +28,7 @@ class Orm {
     }
 
     query<T extends object, A extends unknown[], R>(
-        entity: new (...args: any[]) => T,
+        entity: new (...args: unknown[]) => T,
         builder?: (
             builder: QueryBuilder<T>,
             ...args: A) => QueryBuilder<R>) {
