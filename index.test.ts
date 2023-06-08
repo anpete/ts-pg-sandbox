@@ -1,15 +1,13 @@
-import {describe, expect, it} from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {orm} from "./orm";
-import {QueryBuilder} from "./query";
+import { orm } from "./orm";
 
 class Album {
     constructor(
         readonly albumId: number,
         readonly title: string,
         readonly artistId: number
-    ) {
-    }
+    ) {}
 }
 
 const db = orm(ob => {
@@ -22,28 +20,7 @@ const db = orm(ob => {
     });
 });
 
-function test<T, A extends unknown[], R>(
-    entity: new () => T,
-    func: (
-        builder: QueryBuilder<T>,
-        ...args: A) => QueryBuilder<R>) {
-    return (...args: A) => {
-        console.log(args[0])
-        console.log(args[1])
-    }
-}
-
-class Person {
-    id: number = 42
-}
-
 describe("query", () => {
-    it("rest", () => {
-        const fn = test(Person, (qb, $s: string, $i: number) => qb.map(p => p.id))
-
-        fn("Wow!", 42)
-    });
-
     it("identity", async () => {
         const q = db.query(Album);
 
@@ -66,7 +43,7 @@ describe("query", () => {
         const q = db.query(Album, (albums, $title: string) =>
             albums
                 .where(a => a.title == $title)
-                .select(a => ({msg: `Hi ${a.title}!`, sum: a.artistId * 2}))
+                .select(a => ({ msg: `Hi ${a.title}!`, sum: a.artistId * 2 }))
         );
 
         for await (const obj of q("Miles Ahead")) {
