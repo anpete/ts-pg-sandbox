@@ -1,20 +1,10 @@
-import jsep, {ArrayExpression, BinaryExpression, Identifier, Literal, MemberExpression,} from "jsep";
+import jsep, {ArrayExpression, BinaryExpression, Identifier, Literal, MemberExpression} from "jsep";
 import jsepArrow, {ArrowExpression} from "@jsep-plugin/arrow";
 import jsepObject, {ObjectExpression, Property} from "@jsep-plugin/object";
-import jsepTemplateLiteral, {TemplateElement, TemplateLiteral,} from "@jsep-plugin/template";
+import jsepTemplateLiteral, {TemplateElement, TemplateLiteral} from "@jsep-plugin/template";
 import {List, Stack} from "immutable";
 import {
-    SqlAlias,
-    SqlBinary,
-    SqlIdentifier,
-    SqlMember,
-    SqlNode,
-    SqlOperator,
-    SqlParameter,
-    SqlPrinter,
-    SqlSelect,
-    SqlStar,
-    SqlString,
+    SqlAlias, SqlBinary, SqlIdentifier, SqlMember, SqlNode, SqlParameter, SqlPrinter, SqlSelect, SqlStar, SqlString
 } from "./sql";
 import postgres from "postgres";
 import {EntityModel} from "./model";
@@ -23,11 +13,12 @@ jsep.plugins.register(jsepTemplateLiteral);
 jsep.plugins.register(jsepObject);
 jsep.plugins.register(jsepArrow);
 
-export function compileQuery<T extends object, A extends unknown[], R>(
-    entity: EntityModel,
-    builder?: (
-        builder: QueryBuilder<T>,
-        ...args: A) => QueryBuilder<R>) {
+export function compileQuery<T extends object, A extends unknown[], R>(entity: EntityModel,
+                                                                       builder?: (
+                                                                           builder: QueryBuilder<T>,
+                                                                           ...args: A
+                                                                       ) => QueryBuilder<R>
+) {
 
     let argsMap = List.of<string>();
     let node: QueryNode = new FromNode(entity);
@@ -35,26 +26,27 @@ export function compileQuery<T extends object, A extends unknown[], R>(
     if (builder) {
         const arrowExpression = jsep(builder.toString()) as ArrowExpression;
 
-        argsMap = List(
-            arrowExpression.params!.slice(1).map((e) => (e as Identifier).name)
-        );
+        argsMap = List(arrowExpression.params!.slice(1)
+                                              .map((e) => (e as Identifier).name));
 
         node = builder(new QueryBuilder(node), ...([] as unknown as A)).node;
     }
 
     const compiler = new QueryCompiler(argsMap);
-    const sql = node.accept(compiler).accept(new SqlPrinter());
+    const sql = node.accept(compiler)
+                    .accept(new SqlPrinter());
 
     console.log(sql);
 
-    const db = postgres("postgres://postgres:postgres@db:5432/tests", {
+    const db = postgres("postgres://postgres:postgres@localhost:5432/chinook", {
         // debug: (_, q, __) => console.log(q),
     });
 
     return async function* (...args: A) {
         // console.log(compiler.shaper.toString());
 
-        const values = await db.unsafe(sql, args as any[]).values();
+        const values = await db.unsafe(sql, args as any[])
+                               .values();
 
         for await (const row of values) {
             yield compiler.shaper(row);
@@ -139,24 +131,10 @@ class ArrayNode implements QueryNode {
     }
 }
 
-enum Operator {
-    "==",
-    "!=",
-    ">",
-    ">=",
-    "<",
-    "<=",
-    "&&",
-    "||",
-    "*",
-}
+type Operator = "==" | "!=" | ">" | ">=" | "<" | "<=" | "&&" | "||" | "*";
 
 class BinaryNode implements QueryNode {
-    constructor(
-        readonly left: QueryNode,
-        readonly op: Operator,
-        readonly right: QueryNode
-    ) {
+    constructor(readonly left: QueryNode, readonly op: Operator, readonly right: QueryNode) {
     }
 
     accept<T>(visitor: QueryVisitor<T>): T {
@@ -183,10 +161,7 @@ class ObjectPropertyNode implements QueryNode {
 }
 
 class TemplateLiteralNode implements QueryNode {
-    constructor(
-        readonly quasis: List<TemplateElementNode>,
-        readonly expressions: List<QueryNode>
-    ) {
+    constructor(readonly quasis: List<TemplateElementNode>, readonly expressions: List<QueryNode>) {
     }
 
     accept<T>(visitor: QueryVisitor<T>): T {
@@ -246,10 +221,7 @@ export class QueryBuilder<T> {
     }
 
     where(predicate: (param: T) => boolean): QueryBuilder<T> {
-        this.#node = new WhereNode(
-            this.#node,
-            QueryBuilder.parseExpr(predicate.toString())
-        );
+        this.#node = new WhereNode(this.#node, QueryBuilder.parseExpr(predicate.toString()));
 
         return this;
     }
@@ -259,9 +231,7 @@ export class QueryBuilder<T> {
     }
 
     select<S>(projector: (param: T) => S): QueryBuilder<S> {
-        return new QueryBuilder(
-            new SelectNode(this.node, QueryBuilder.parseExpr(projector.toString()))
-        );
+        return new QueryBuilder(new SelectNode(this.node, QueryBuilder.parseExpr(projector.toString())));
     }
 
     map<S>(mapper: (param: T) => S): QueryBuilder<S> {
@@ -269,7 +239,7 @@ export class QueryBuilder<T> {
     }
 
     private static parseExpr(js: string): QueryNode {
-        var expr = jsep(js);
+        const expr = jsep(js);
 
         //console.log(expr);
 
@@ -280,24 +250,18 @@ export class QueryBuilder<T> {
         switch (expr.type) {
             case "ArrayExpression":
                 const array = expr as ArrayExpression;
-                return new ArrayNode(
-                    List(array.elements?.map((e) => this.exprToNode(e)))
-                );
+                return new ArrayNode(List(array.elements?.map((e) => this.exprToNode(e))));
 
             case "ArrowFunctionExpression":
                 const arrow = expr as ArrowExpression;
-                return new ArrowFunctionNode(
-                    List(arrow.params?.map((e) => this.exprToNode(e))),
-                    this.exprToNode(arrow.body)
-                );
+                return new ArrowFunctionNode(List(arrow.params?.map((e) => this.exprToNode(e))),
+                                             this.exprToNode(arrow.body));
 
             case "BinaryExpression":
                 const binary = expr as BinaryExpression;
-                return new BinaryNode(
-                    this.exprToNode(binary.left),
-                    this.parseOp(binary.operator),
-                    this.exprToNode(binary.right)
-                );
+                return new BinaryNode(this.exprToNode(binary.left),
+                                      this.parseOp(binary.operator),
+                                      this.exprToNode(binary.right));
 
             case "Literal":
                 const literal = expr as Literal;
@@ -309,45 +273,25 @@ export class QueryBuilder<T> {
 
             case "MemberExpression":
                 const member = expr as MemberExpression;
-                return new MemberNode(
-                    this.exprToNode(member.object),
-                    this.exprToNode(member.property)
-                );
+                return new MemberNode(this.exprToNode(member.object), this.exprToNode(member.property));
 
             case "ObjectExpression":
                 const object = expr as ObjectExpression;
-                return new ObjectNode(
-                    List(
-                        object.properties.map(
-                            (e) => this.exprToNode(e) as ObjectPropertyNode
-                        )
-                    )
-                );
+                return new ObjectNode(List(object.properties.map((e) => this.exprToNode(e) as ObjectPropertyNode)));
 
             case "Property":
                 const property = expr as Property;
-                return new ObjectPropertyNode(
-                    this.exprToNode(property.key),
-                    property.value ? this.exprToNode(property.value) : undefined
-                );
+                return new ObjectPropertyNode(this.exprToNode(property.key),
+                                              property.value ? this.exprToNode(property.value) : undefined);
 
             case "TemplateLiteral":
                 const templateLiteral = expr as TemplateLiteral;
-                return new TemplateLiteralNode(
-                    List(
-                        templateLiteral.quasis?.map(
-                            (e) => this.exprToNode(e) as TemplateElementNode
-                        )
-                    ),
-                    List(templateLiteral.expressions?.map((e) => this.exprToNode(e)))
-                );
+                return new TemplateLiteralNode(List(templateLiteral.quasis?.map((e) => this.exprToNode(e) as TemplateElementNode)),
+                                               List(templateLiteral.expressions?.map((e) => this.exprToNode(e))));
 
             case "TemplateElement":
                 const templateElement = expr as TemplateElement;
-                return new TemplateElementNode(
-                    templateElement.value.cooked,
-                    templateElement.value.raw
-                );
+                return new TemplateElementNode(templateElement.value.cooked, templateElement.value.raw);
 
             default:
                 throw new Error(`Unsupported expression type: ${expr.type}`);
@@ -356,25 +300,22 @@ export class QueryBuilder<T> {
 
     private static parseOp(op: string): Operator {
         switch (op) {
-            case "==":
             case "===":
-                return Operator["=="];
+                return "==";
+            case "!==":
+                return "!=";
+
+            case "==":
             case "!=":
-                return Operator["!="];
             case ">":
-                return Operator[">"];
             case ">=":
-                return Operator[">="];
             case "<":
-                return Operator["<"];
             case "<=":
-                return Operator["<="];
             case "&&":
-                return Operator["&&"];
             case "||":
-                return Operator["||"];
             case "*":
-                return Operator["*"];
+                return op;
+
             default:
                 throw new Error(`Unknown operator: ${op}`);
         }
@@ -400,8 +341,10 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
     visitFrom(from: FromNode): SqlNode {
         this.#model = from.model;
         const table = from.model.table;
-        const alias = new SqlIdentifier(table.charAt(0).toLowerCase());
-        const columns = from.model.properties.map((p) => p.column).toList();
+        const alias = new SqlIdentifier(table.charAt(0)
+                                             .toLowerCase());
+        const columns = from.model.properties.map((p) => p.column)
+                            .toList();
 
         this.#shaper = (row: any[]) => {
             const o = new from.model.ctor();
@@ -409,10 +352,8 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
             return o;
         };
 
-        return new SqlSelect(
-            List(columns.map((c) => new SqlMember(alias, new SqlIdentifier(c)))),
-            new SqlAlias(new SqlIdentifier(table), alias)
-        );
+        return new SqlSelect(List(columns.map((c) => new SqlMember(alias, new SqlIdentifier(c)))),
+                             new SqlAlias(new SqlIdentifier(table), alias));
     }
 
     visitWhere(where: WhereNode): SqlNode {
@@ -421,12 +362,11 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
         this.#aliases = this.#aliases.push(alias);
 
         try {
-            return new SqlSelect(
-                List.of(new SqlMember(alias, SqlStar.instance)),
-                new SqlAlias(where.parent.accept(this), alias),
-                where.predicate.accept(this)
-            );
-        } finally {
+            return new SqlSelect(List.of(new SqlMember(alias, SqlStar.instance)),
+                                 new SqlAlias(where.parent.accept(this), alias),
+                                 where.predicate.accept(this));
+        }
+        finally {
             this.#aliases = this.#aliases.pop();
         }
     }
@@ -453,7 +393,8 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
             }
 
             return new SqlSelect(projection, from);
-        } finally {
+        }
+        finally {
             this.#aliases = this.#aliases.pop();
         }
     }
@@ -465,7 +406,8 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
 
         try {
             return arrowFunction.body.accept(this);
-        } finally {
+        }
+        finally {
             this.#scopes = this.#scopes.pop();
         }
     }
@@ -479,24 +421,23 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
 
     private static mapOp(op: Operator) {
         switch (op) {
-            case Operator["=="]:
-                return SqlOperator["="];
-            case Operator["!="]:
-                return SqlOperator["<>"];
-            case Operator[">"]:
-                return SqlOperator[">"];
-            case Operator[">="]:
-                return SqlOperator[">="];
-            case Operator["<"]:
-                return SqlOperator["<"];
-            case Operator["<="]:
-                return SqlOperator["<="];
-            case Operator["&&"]:
-                return SqlOperator["and"];
-            case Operator["||"]:
-                return SqlOperator["or"];
-            case Operator["*"]:
-                return SqlOperator["*"];
+            case "==":
+                return "=";
+            case "!=":
+                return "<>";
+
+            case "&&":
+                return "and";
+            case "||":
+                return "or";
+
+            case ">":
+            case ">=":
+            case "<":
+            case "<=":
+            case "*":
+                return op;
+
             default:
                 throw new Error(`Unknown operator: ${op}`);
         }
@@ -507,9 +448,7 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
         const model = this.#model!.properties.get(identifier.name)!;
         const node = new SqlIdentifier(model!.column);
 
-        return !this.#aliases.isEmpty()
-            ? new SqlMember(this.#aliases.peek()!, node)
-            : node;
+        return !this.#aliases.isEmpty() ? new SqlMember(this.#aliases.peek()!, node) : node;
     }
 
     visitArray(array: ArrayNode): SqlNode {
@@ -535,16 +474,13 @@ class QueryCompiler implements QueryVisitor<SqlNode> {
 
     visitTemplateLiteral(templateLiteral: TemplateLiteralNode): SqlNode {
         return templateLiteral.quasis
-            .map((q, i) => {
-                const quasi = q.raw.length > 0 ? q.accept(this) : undefined;
-                const expr = templateLiteral.expressions.get(i)?.accept(this);
-                return quasi && expr
-                    ? new SqlBinary(quasi, SqlOperator["||"], expr)
-                    : (quasi ?? expr)!;
-            })
-            .reduce((acc: SqlNode, next) =>
-                acc ? new SqlBinary(acc, SqlOperator["||"], next!) : next
-            );
+                              .map((q, i) => {
+                                  const quasi = q.raw.length > 0 ? q.accept(this) : undefined;
+                                  const expr = templateLiteral.expressions.get(i)
+                                                              ?.accept(this);
+                                  return quasi && expr ? new SqlBinary(quasi, "||", expr) : (quasi ?? expr)!;
+                              })
+                              .reduce((acc: SqlNode, next) => acc ? new SqlBinary(acc, "||", next!) : next);
     }
 
     visitTemplateElement(templateElement: TemplateElementNode): SqlNode {
@@ -571,10 +507,7 @@ class ShaperNode extends SqlNode {
         return "projection" in node;
     }
 
-    constructor(
-        readonly projection: List<SqlNode>,
-        readonly shaper: (row: any[]) => any
-    ) {
+    constructor(readonly projection: List<SqlNode>, readonly shaper: (row: any[]) => any) {
         super();
     }
 }

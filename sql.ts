@@ -7,11 +7,7 @@ export abstract class SqlNode {
 }
 
 export class SqlSelect extends SqlNode {
-    constructor(
-        readonly projection: List<SqlNode>,
-        readonly from: SqlNode,
-        readonly where?: SqlNode
-    ) {
+    constructor(readonly projection: List<SqlNode>, readonly from: SqlNode, readonly where?: SqlNode) {
         super();
     }
 
@@ -21,11 +17,7 @@ export class SqlSelect extends SqlNode {
 }
 
 export class SqlBinary extends SqlNode {
-    constructor(
-        readonly left: SqlNode,
-        readonly op: SqlOperator,
-        readonly right: SqlNode
-    ) {
+    constructor(readonly left: SqlNode, readonly op: SqlOperator, readonly right: SqlNode) {
         super();
     }
 
@@ -34,18 +26,7 @@ export class SqlBinary extends SqlNode {
     }
 }
 
-export enum SqlOperator {
-    "=",
-    "<>",
-    ">",
-    ">=",
-    "<",
-    "<=",
-    "and",
-    "or",
-    "||",
-    "*",
-}
+export type SqlOperator = "=" | "<>" | ">" | ">=" | "<" | "<=" | "and" | "or" | "||" | "*";
 
 export class SqlAlias extends SqlNode {
     constructor(readonly target: SqlNode, readonly alias: SqlNode) {
@@ -130,8 +111,9 @@ interface SqlVisitor<T> {
 export class SqlPrinter implements SqlVisitor<string> {
     visitSelect(select: SqlSelect): string {
         let sql = `select ${select.projection
-            .map(n => n.accept(this))
-            .join(", ")} from `;
+                                  .map(n => n.accept(this))
+                                  .join(", ")}
+                   from `;
 
         sql += this.parens(select.from);
 
@@ -147,9 +129,7 @@ export class SqlPrinter implements SqlVisitor<string> {
     }
 
     visitBinary(binary: SqlBinary): string {
-        return `${binary.left.accept(this)} ${
-            SqlOperator[binary.op]
-        } ${binary.right.accept(this)}`;
+        return `${binary.left.accept(this)} ${binary.op} ${binary.right.accept(this)}`;
     }
 
     visitMember(member: SqlMember): string {

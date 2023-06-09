@@ -1,15 +1,15 @@
 import {Map} from "immutable";
 
 export class Model {
-    constructor(
-        readonly entities: Map<new (...args: any[]) => any, EntityModel> = Map()
-    ) {
+    constructor(readonly entities: Map<new (...args: any[]) => any, EntityModel> = Map()) {
     }
 
     withEntity(key: new (...args: any[]) => any, model: EntityModel) {
         const entities = this.entities.set(key, model);
 
-        if (entities === this.entities) return this;
+        if (entities === this.entities) {
+            return this;
+        }
 
         return new Model(entities);
     }
@@ -26,10 +26,7 @@ export class ModelBuilder {
         return this.#model;
     }
 
-    entity<T extends object>(
-        ctor: new (...args: any[]) => T,
-        builder: (eb: EntityBuilder<T>) => void
-    ): ModelBuilder {
+    entity<T extends object>(ctor: new (...args: any[]) => T, builder: (eb: EntityBuilder<T>) => void): ModelBuilder {
         let model = this.#model.entities.get(ctor);
 
         if (!model) {
@@ -61,13 +58,17 @@ export class EntityModel {
     withProperty(key: string, model: PropertyModel): EntityModel {
         const properties = this.properties.set(key, model);
 
-        if (properties === this.properties) return this;
+        if (properties === this.properties) {
+            return this;
+        }
 
         return new EntityModel(this.ctor, properties, this.table);
     }
 
     withTable(table: string): EntityModel {
-        if (table === this.table) return this;
+        if (table === this.table) {
+            return this;
+        }
 
         return new EntityModel(this.ctor, this.properties, table);
     }
@@ -84,10 +85,7 @@ class EntityBuilder<T> {
         return this.#model;
     }
 
-    property<S>(
-        key: keyof T,
-        builder: (pb: PropertyBuilder<S>) => void
-    ): EntityBuilder<T> {
+    property<S>(key: keyof T, builder: (pb: PropertyBuilder<S>) => void): EntityBuilder<T> {
         if (typeof key !== "string") {
             throw Error(`Property '${key.toString()}' must be a string.`);
         }
@@ -119,7 +117,9 @@ export class PropertyModel {
     }
 
     withColumn(column: string): PropertyModel {
-        if (column === this.column) return this;
+        if (column === this.column) {
+            return this;
+        }
 
         return new PropertyModel(column);
     }

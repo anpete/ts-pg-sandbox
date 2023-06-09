@@ -31,7 +31,7 @@ class Orm {
     constructor(readonly model: Model) {
     }
 
-    query<T extends object, A extends unknown[], R>(
+    query<T extends object, const A extends unknown[], R>(
         entity: new (...args: any[]) => T,
         builder?: (
             builder: QueryBuilder<T>,
