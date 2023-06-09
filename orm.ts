@@ -14,6 +14,10 @@ class OrmBuilder {
         return new Orm(this.#model);
     }
 
+    // configure(builder: (cb => ConfigBuilder) => void) {
+        
+    // }
+
     model(builder: (mb: ModelBuilder) => void) {
         const mb = new ModelBuilder(this.#model);
         builder(mb);
@@ -28,7 +32,7 @@ class Orm {
     }
 
     query<T extends object, A extends unknown[], R>(
-        entity: new (...args: unknown[]) => T,
+        entity: new (...args: any[]) => T,
         builder?: (
             builder: QueryBuilder<T>,
             ...args: A) => QueryBuilder<R>) {
